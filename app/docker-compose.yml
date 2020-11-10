@@ -1,0 +1,9 @@
+version: "2"
+services:
+
+  backend:
+    restart: always
+    container_name: backend
+    build: ./tracker-backend
+    expose:
+      - 8086
