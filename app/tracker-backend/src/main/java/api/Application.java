@@ -17,9 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class Application {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
-    @RequestMapping("/")
+    @RequestMapping("/home")
     public String home()
     {
         return "Hello World!";
+    }
+
+    @RequestMapping("*")
+    public String error() {
+        return "Error in finding the correct mapping";
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 }

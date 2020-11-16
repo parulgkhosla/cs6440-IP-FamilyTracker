@@ -1,9 +1,21 @@
 version: "2"
 services:
+  frontend:
+    build: tracker-frontend/
+    restart: always
+    container_name: tracker-frontend
+    expose:
+      - 80
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
   backend:
     restart: always
     container_name: backend
     build: ./tracker-backend
+    ports:
+      - 8086:8086
     expose:
       - 8086
