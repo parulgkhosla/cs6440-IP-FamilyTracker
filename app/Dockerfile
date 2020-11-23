@@ -18,7 +18,7 @@ FROM nginx:alpine
 # Set working directory to nginx asset directory
 WORKDIR /app
 # Copy static assets from builder stage
-COPY --from=builder /app/tracker-frontend/build html
+COPY --from=builder /app/frontend/build html
 COPY --from=builder /app/config config
 RUN mkdir -p config/logs
 

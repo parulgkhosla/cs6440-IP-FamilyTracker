@@ -1,6 +1,7 @@
 package api.model;
 
 import java.util.Date;
+import java.util.List;
 
 public class PatientInfo {
 
@@ -21,6 +22,36 @@ public class PatientInfo {
     private String diatollic;
 
     //List of allergies, medications, conditions, emcounters and immunizations.
+    List<String> medications;
+    List<String> allergies;
+    List<String> conditions;
+    List<String> encounters;
+    List<String> immunizations;
+    List<FamilyMember> familyMembers;
+
+    public List<FamilyMember> getFamilyMembers() {
+        return familyMembers;
+    }
+
+    public void setFamilyMembers(List<FamilyMember> familyMembers) {
+        this.familyMembers = familyMembers;
+    }
+
+    public List<String> getImmunizations() {
+        return immunizations;
+    }
+
+    public void setImmunizations(List<String> immunizations) {
+        this.immunizations = immunizations;
+    }
+
+    public List<String> getEncounters() {
+        return encounters;
+    }
+
+    public void setEncounters(List<String> encounters) {
+        this.encounters = encounters;
+    }
 
     public String getPatientId() {
         return patientId;
@@ -140,5 +171,29 @@ public class PatientInfo {
 
     public void setDiatollic(String diatollic) {
         this.diatollic = diatollic;
+    }
+
+    public List<String> getMedications() {
+        return medications;
+    }
+
+    public void setMedications(List<String> medications) {
+        this.medications = medications;
+    }
+
+    public List<String> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(List<String> allergies) {
+        this.allergies = allergies;
+    }
+
+    public List<String> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(List<String> conditions) {
+        this.conditions = conditions;
     }
 }

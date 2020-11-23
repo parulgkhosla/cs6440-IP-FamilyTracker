@@ -11,7 +11,7 @@ FROM openjdk:8-jdk-alpine
 
 WORKDIR /app
 COPY --from=builder /app/target/family-health-tracker-backend-1.0-SNAPSHOT.jar .
-EXPOSE 8086
+EXPOSE 8080
 CMD [ "java", "-jar", "family-health-tracker-backend-1.0-SNAPSHOT.jar" ]
 #CMD ["ls","-altr","/app/target"]
 #RUN echo $(pwd)
