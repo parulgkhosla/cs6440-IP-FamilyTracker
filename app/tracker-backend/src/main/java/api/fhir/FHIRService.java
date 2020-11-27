@@ -18,9 +18,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class FHIRService {
 
@@ -57,7 +55,7 @@ public class FHIRService {
             patientInfo.setGender(patient.getGender().getDisplay());
         if(patient.getBirthDate() != null)
             patientInfo.setAge(Period.between(patient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now()).getYears());
-        patientInfo.setAddress(patient.getAddressFirstRep().getLine()+" "+patient.getAddressFirstRep().getCity()+
+        patientInfo.setAddress(patient.getAddressFirstRep().getLine().get(0)+" "+patient.getAddressFirstRep().getCity()+
                 " "+patient.getAddressFirstRep().getState()+" "+patient.getAddressFirstRep().getPostalCode());
 
         return patientInfo;
@@ -68,14 +66,9 @@ public class FHIRService {
      * @param patientId
      * @return
      */
-    public String getPatientWeightById(String patientId) {
-//        response = client.search()
-//                .forResource("Observation")
-//                .where(Observation.CODE_VALUE_DATE
-//                        .withLeft(Observation.CODE.exactly().code("FOO$BAR"))
-//                        .withRight(Observation.VALUE_DATE.exactly().day("2001-01-01")))
-//                .returnBundle(Bundle.class)
-//                .execute();
+    public List<Observation> getPatientWeightById(String patientId) {
+        List<Observation> weightsList = new ArrayList<>();
+
         Bundle bundle = client.search().forResource(Observation.class)
                 .where(Observation.CODE.exactly().code("29463-7"))
                 .and(Observation.PATIENT.hasId(patientId))
@@ -83,15 +76,14 @@ public class FHIRService {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        //weight
-//        "system": "http ://loinc.org",
-//                "code": "29463-7"
-        List<Observation> observationList = getCompleteBundleAsList(bundle, client, Observation.class);
+        //weight "code": "29463-7"
+        weightsList = getCompleteBundleAsList(bundle, client, Observation.class);
 //        System.out.println(observationList.size());
-        String weight = "";
-        if(!observationList.isEmpty())
-            weight = observationList.get(0).getValueQuantity().getValue().toString()+" "+observationList.get(0).getValueQuantity().getUnit();
-        return weight;
+//        String weight = "";
+//        if(!observationList.isEmpty())
+//            weight = observationList.get(0).getValueQuantity().getValue().toString()+" "+observationList.get(0).getValueQuantity().getUnit();
+//        return weight;
+        return  weightsList;
     }
 
     /**
@@ -153,7 +145,7 @@ public class FHIRService {
     public String getPatientBMIById(String patientId) {
 
         Bundle bundle = client.search().forResource(Observation.class)
-                .where(Observation.CODE.exactly().code("2089-1"))
+                .where(Observation.CODE.exactly().code("39156-5"))
                 .and(Observation.PATIENT.hasId(patientId))
                 .sort(new SortSpec("date", SortOrderEnum.DESC))
                 .returnBundle(Bundle.class)
@@ -163,7 +155,7 @@ public class FHIRService {
 //        System.out.println(observationList.size());
         String bmi = "";
         if(!observationList.isEmpty())
-            bmi = observationList.get(0).getValueQuantity().getValue().toString()+" "+observationList.get(0).getValueQuantity().getUnit();
+            bmi = observationList.get(0).getValueQuantity().getValue().toString();//+" "+observationList.get(0).getValueQuantity().getUnit();
         return bmi;
     }
 
@@ -244,8 +236,10 @@ public class FHIRService {
         System.out.println("encounter count - "+encounterList.size());
 
         for (Encounter encounter : encounterList) {
-            if (encounter.getReasonCode().size() != 0)
-                encounters.add(encounter.getReasonCode().get(0).getCoding().get(0).getDisplay());
+            if (encounter.getReasonCode().size() != 0
+            && !encounters.contains(encounter.getReasonCode().get(0).getCoding().get(0).getDisplay()))
+                encounters.add(encounter.getReasonCode().get(0).getCoding().get(0).getDisplay()
+                        +"|"+ encounter.getPeriod().getEnd().toString());
             if (encounters.size() ==2) { break; }
         }
 
@@ -275,8 +269,8 @@ public class FHIRService {
         return immunizations;
     }
 
-    public String getPatientIdByNameDob(String firstName, String familyName, String dob) throws ParseException {
-        String patientId = "";
+    public Patient getPatientInfoByNameDob(String firstName, String familyName, String dob) throws ParseException {
+        Patient patientId = null;
 //        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
         Bundle bundle = (Bundle) client.search().forResource(Patient.class)
                 .where(Patient.FAMILY.matches().value(familyName))
@@ -285,17 +279,18 @@ public class FHIRService {
                 .returnBundle(Bundle.class)
                 .execute();
         List<Patient> patients = getCompleteBundleAsList(bundle, client, Patient.class);
-        System.out.println(patients.size());
-        for (Patient patient : patients) {
-            System.out.println(patient.getBirthDate());
+        System.out.println("related person count-"+patients.size());
+//        for (Patient patient : patients) {
+//            System.out.println(patient.getBirthDate());
 //            System.out.println(date);
 //            if (patient.getBirthDate().equals(date)) {
 //                return patient.getIdElement().getIdPart();
 //            }
-            patientId = patient.getIdElement().getIdPart();
-        }
-        System.out.println("patient id -"+patientId);
-        return patientId;
+//            patientId = patient.getIdElement().getIdPart();
+//        }
+        System.out.println("member patient id -"+patientId);
+        if (patients.isEmpty()) return null;
+        return patients.get(0);
     }
 
     public List<FamilyMember> getFamilyMemberForPatient(String patientId) throws ParseException {
@@ -317,11 +312,41 @@ public class FHIRService {
                 familyMember.setFamilyName(relatedPerson.getName().get(0).getFamily());
                 familyMember.setFirstName(relatedPerson.getName().get(0).getGiven().get(0).getValue());
                 familyMember.setBirthDate(relatedPerson.getBirthDate().toString());
-                System.out.println("family member dob-" + relatedPerson.getIdBase());
+                System.out.println("family member id-" + relatedPerson.getIdElement().getIdPart());
                 System.out.println("family member dob-" + relatedPerson.getBirthDate());
-                familyMember.setMemberPatientId(this.getPatientIdByNameDob(relatedPerson.getName().get(0).getGiven().get(0).getValue(),
-                        relatedPerson.getName().get(0).getFamily(), relatedPerson.getBirthDate().toString()));
+                System.out.println("family member last name-" + relatedPerson.getName().get(0).getFamily());
+                //fetch member health info
+                Patient memberInfo = this.getPatientInfoByNameDob(relatedPerson.getName().get(0).getGiven().get(0).getValue(),
+                        relatedPerson.getName().get(0).getFamily(), relatedPerson.getBirthDate().toString());
+                if (memberInfo != null && memberInfo.getIdElement() != null) {
+                    //set family member info
 
+                    if(memberInfo.getGender() != null)
+                        familyMember.setGender(memberInfo.getGender().getDisplay());
+                    if(memberInfo.getBirthDate() != null) {
+                        familyMember.setBirthDate(new SimpleDateFormat("yyyy-mm-dd").format(memberInfo.getBirthDate()));
+                        familyMember.setAge(Period.between(memberInfo.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now()).getYears());
+
+                    }
+                    familyMember.setAddress(memberInfo.getAddressFirstRep().getLine().get(0)+" "+memberInfo.getAddressFirstRep().getCity()+
+                        " "+memberInfo.getAddressFirstRep().getState()+" "+memberInfo.getAddressFirstRep().getPostalCode());
+
+                    familyMember.setMemberPatientId(memberInfo.getIdElement().getIdPart());
+                    List<Observation> weightList = this.getPatientWeightById(familyMember.getMemberPatientId());
+                    if(!weightList.isEmpty())
+                        familyMember.setWeight(weightList.get(0).getValueQuantity().getValue().toString()
+                                +" "+weightList.get(0).getValueQuantity().getUnit());
+
+                    familyMember.setHeight(this.getPatientHeightById(familyMember.getMemberPatientId()));
+                    familyMember.setBmi(this.getPatientBMIById(familyMember.getMemberPatientId()));
+                    familyMember.setHdl(this.getPatientHDLById(familyMember.getMemberPatientId()));
+                    familyMember.setLdl(this.getPatientLDLById(familyMember.getMemberPatientId()));
+                    familyMember.setAllergies(this.getAllergiesByPatientId(familyMember.getMemberPatientId()));
+                    familyMember.setConditions(this.getConditionsByPatientId(familyMember.getMemberPatientId()));
+                    familyMember.setEncounters(this.getEncountersByPatientId(familyMember.getMemberPatientId()));
+                    familyMember.setImmunizations(this.getImmunizationByPatientId(familyMember.getMemberPatientId()));
+                    familyMember.setMedications(this.getMedicationsByPatientId(familyMember.getMemberPatientId()));
+                }
                 familyMembers.add(familyMember);
             }
         }

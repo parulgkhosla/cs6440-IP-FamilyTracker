@@ -1,0 +1,42 @@
+.tracker-container {
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.25);
+  padding: 1em;
+  border-radius: 0.28em;
+  /*margin: 0 auto 2em auto;*/
+  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1000px;
+  background-color: #282c34;
+  color: black;
+  font-size: 15px;
+}
+
+.tracker-container:last-child {
+  margin-bottom: 0;
+}
+
+.tracker-container:hover {
+  border: 1px solid rgba(0,0,0,0.33);
+}
+
+.tracker-container.complete {
+  border: 1px solid green;
+}
+
+.tracker-container.error {
+  border: 1px solid red;
+}
+
+.container-title {
+  /*position: absolute;*/
+  top: -0.75em;
+  left: 1.5em;
+  padding: 0 0.5em 0 0.5em;
+  /*background: white;*/
+  color: white;
+  font-size: 1.5em;
+  font-weight: 400;
+}

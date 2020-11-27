@@ -1,0 +1,91 @@
+.input-field-outer {
+  position: relative;
+  padding: 0.5em;
+  border-radius: 0.28em;
+}
+
+
+.input-field-outer.grow {
+  flex: 1;
+  
+}
+
+.input-field-outer.small {
+  max-width: 100px;
+}
+
+.input-field-outer.different {
+  background-color: rgba(252, 165, 3, .15);
+}
+
+.text-label {
+  /*padding: 10px;*/
+  padding-left:50px;
+  font-size: 0.9em;
+  color: white;
+  position: relative;
+}
+
+.table-label {
+  /*padding: 10px;*/
+  padding-left:50px;
+  width: inherit;
+  font-size: 0.9em;
+  color: white;
+  position: relative;
+  border: 1px solid lightslategrey;
+}
+
+.input-title {
+  padding: 10px;
+  font-size: 0.9em;
+  color: white;
+  position: relative;
+}
+
+.section-title {
+  padding: 10px;
+  color: white;
+  position: relative;
+  font-size: 1.5em;
+  font-weight: 400;
+}
+
+.input-title.small {
+  font-size: 0.8em;
+  color: white;
+}
+
+.input-field {
+  padding: 0.5em;
+  border-radius: 0.28em;
+  border: 1px solid lightgray;
+  font-family: 'DM Sans', Sans-Serif;
+}
+
+.input-field.disabled {
+  cursor: not-allowed;
+}
+
+.input-field:hover.disabled {
+  border: 1px solid lightgray;
+}
+
+
+.input-field:hover {
+  border: 1px solid gray;
+}
+
+.action-area {
+  border-radius: 0.28em;
+  padding: 0.25em;
+  transition: 50ms ease-in;
+}
+
+.action-area:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.action-area:active {
+  background-color: rgba(0,0,0,0.075);
+}
