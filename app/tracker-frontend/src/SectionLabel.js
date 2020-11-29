@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 
-import "./TextInput.css";
+import "./PatientFields.css";
 
 const SectionLabel = ({ title, isRequired, small }) => (
   <span className={classNames("section-title", { small })}>

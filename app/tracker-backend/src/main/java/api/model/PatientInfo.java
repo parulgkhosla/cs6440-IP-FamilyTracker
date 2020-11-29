@@ -9,7 +9,7 @@ public class PatientInfo {
     private String firstName;
     private String lastName;
     private String displayName;
-    private Date dateOfBirth;
+    private String dateOfBirth;
     private int age;
     private String gender;
     private String address;
@@ -85,11 +85,11 @@ public class PatientInfo {
         this.displayName = displayName;
     }
 
-    public Date getDateOfBirth() {
+    public String getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

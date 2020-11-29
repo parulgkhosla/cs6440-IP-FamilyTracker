@@ -12,6 +12,8 @@ import jdk.nashorn.internal.ir.LiteralNode;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.codesystems.AllergyIntoleranceCategory;
+import org.hl7.fhir.r4.model.codesystems.AllergyIntoleranceType;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.Enumeration;
 
 public class FHIRService {
 
@@ -38,7 +41,7 @@ public class FHIRService {
      * @param patientId
      * @return
      */
-    public PatientInfo getPatientInfoById(String patientId) {
+    public PatientInfo getPatientInfoById(String patientId) throws ParseException {
 
         Patient patient = client.read()
                 .resource(Patient.class)
@@ -50,7 +53,11 @@ public class FHIRService {
         patientInfo.setFirstName(patient.getName().get(0).getGiven().get(0).getValue());
         patientInfo.setLastName(patient.getName().get(0).getFamily());
 
-        patientInfo.setDateOfBirth(patient.getBirthDate());
+        if(patient.getBirthDate() != null) {
+            patientInfo.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").format(patient.getBirthDate()));
+            patientInfo.setAge(Period.between(patient.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now()).getYears());
+
+        }
         if(patient.getGender() != null)
             patientInfo.setGender(patient.getGender().getDisplay());
         if(patient.getBirthDate() != null)
@@ -59,6 +66,140 @@ public class FHIRService {
                 " "+patient.getAddressFirstRep().getState()+" "+patient.getAddressFirstRep().getPostalCode());
 
         return patientInfo;
+    }
+
+    public PatientInfo getPatientVitalsByPatientId(PatientInfo patientInfo) {
+        PatientInfo updatedPatientInfo = new PatientInfo();
+        List<Observation> observations = new ArrayList<>();
+
+        updatedPatientInfo.setPatientId(patientInfo.getPatientId());
+        updatedPatientInfo.setFirstName(patientInfo.getFirstName());
+        updatedPatientInfo.setLastName(patientInfo.getLastName());
+        updatedPatientInfo.setDisplayName(patientInfo.getDisplayName());
+        updatedPatientInfo.setAge(patientInfo.getAge());
+        updatedPatientInfo.setDateOfBirth(patientInfo.getDateOfBirth());
+        updatedPatientInfo.setAddress(patientInfo.getAddress());
+        updatedPatientInfo.setGender(patientInfo.getGender());
+
+        Bundle bundle = client.search().forResource(Observation.class)
+                .where(Observation.CODE.exactly().codes("29463-7","8302-2", "2085-9", "2089-1", "39156-5"))
+                .and(Observation.PATIENT.hasId(patientInfo.getPatientId()))
+                .sort(new SortSpec("date", SortOrderEnum.DESC))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        //weight "code": "29463-7"
+        //hdl 2085-9
+        //ldl 2089-1
+        //bmi 39156-5
+        observations = getCompleteBundleAsList(bundle, client, Observation.class);
+        //TODO add logic to form thw eigths list ofr a graph maybe
+        for (Observation observation : observations) {
+//            System.out.println("ob code-"+observation.getCode().getCoding().get(0).getDisplay());
+//            System.out.println("ob value-"+observation.getValueQuantity().getValue());
+//            System.out.println(observation.getIssued());
+            if (observation.getCode() != null) {
+                switch(observation.getCode().getCoding().get(0).getCode()) {
+                    //weight
+                    case "29463-7":
+                        if (updatedPatientInfo.getWeight() == null)
+                            updatedPatientInfo.setWeight(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                            + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //height
+                    case "8302-2":
+                        if (updatedPatientInfo.getHeight() == null)
+                            updatedPatientInfo.setHeight(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //hdl
+                    case "2085-9":
+                        if (updatedPatientInfo.getHdl() == null)
+                            updatedPatientInfo.setHdl(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //ldl
+                    case "2089-1":
+                        if (updatedPatientInfo.getLdl() == null)
+                            updatedPatientInfo.setLdl(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //bmi
+                    case "39156-5":
+                        if (updatedPatientInfo.getBmi() == null)
+                            updatedPatientInfo.setBmi(String.valueOf(Math.round(observation.getValueQuantity().getValue().doubleValue())));
+                        break;
+                }
+            }
+        }
+        return updatedPatientInfo;
+    }
+
+    public FamilyMember getFamilyMemberVitalsByPatientId(FamilyMember patientInfo) {
+        FamilyMember updatedPatientInfo = new FamilyMember();
+        List<Observation> observations = new ArrayList<>();
+
+        updatedPatientInfo.setMemberPatientId(patientInfo.getMemberPatientId());
+        updatedPatientInfo.setFirstName(patientInfo.getFirstName());
+        updatedPatientInfo.setFamilyName(patientInfo.getFamilyName());
+        updatedPatientInfo.setAge(patientInfo.getAge());
+        updatedPatientInfo.setBirthDate(patientInfo.getBirthDate());
+        updatedPatientInfo.setAddress(patientInfo.getAddress());
+        updatedPatientInfo.setGender(patientInfo.getGender());
+        updatedPatientInfo.setRelationship(patientInfo.getRelationship());
+
+        Bundle bundle = client.search().forResource(Observation.class)
+                .where(Observation.CODE.exactly().codes("29463-7","8302-2", "2085-9", "2089-1", "39156-5"))
+                .and(Observation.PATIENT.hasId(patientInfo.getMemberPatientId()))
+                .sort(new SortSpec("date", SortOrderEnum.DESC))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        //weight "code": "29463-7"
+        //hdl 2085-9
+        //ldl 2089-1
+        //bmi 39156-5
+        observations = getCompleteBundleAsList(bundle, client, Observation.class);
+        //TODO add logic to form thw eigths list ofr a graph maybe
+        for (Observation observation : observations) {
+//            System.out.println("ob code-"+observation.getCode().getCoding().get(0).getDisplay());
+//            System.out.println("ob value-"+observation.getValueQuantity().getValue());
+//            System.out.println(observation.getIssued());
+            if (observation.getCode() != null) {
+                switch(observation.getCode().getCoding().get(0).getCode()) {
+                    //weight
+                    case "29463-7":
+                        if (updatedPatientInfo.getWeight() == null)
+                            updatedPatientInfo.setWeight(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //height
+                    case "8302-2":
+                        if (updatedPatientInfo.getHeight() == null)
+                            updatedPatientInfo.setHeight(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //hdl
+                    case "2085-9":
+                        if (updatedPatientInfo.getHdl() == null)
+                            updatedPatientInfo.setHdl(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //ldl
+                    case "2089-1":
+                        if (updatedPatientInfo.getLdl() == null)
+                            updatedPatientInfo.setLdl(Math.round(observation.getValueQuantity().getValue().doubleValue())
+                                    + " " + observation.getValueQuantity().getUnit());
+                        break;
+                    //bmi
+                    case "39156-5":
+                        if (updatedPatientInfo.getBmi() == null)
+                            updatedPatientInfo.setBmi(String.valueOf(Math.round(observation.getValueQuantity().getValue().doubleValue())));
+                        break;
+                }
+            }
+        }
+        return updatedPatientInfo;
     }
 
     /**
@@ -78,6 +219,7 @@ public class FHIRService {
 
         //weight "code": "29463-7"
         weightsList = getCompleteBundleAsList(bundle, client, Observation.class);
+
 //        System.out.println(observationList.size());
 //        String weight = "";
 //        if(!observationList.isEmpty())
@@ -173,9 +315,22 @@ public class FHIRService {
         List<MedicationRequest> medicationRequestList = getCompleteBundleAsList(bundle, client, MedicationRequest.class);
 
         System.out.println("medications count-"+medicationRequestList.size());
-
+        StringBuilder stringBuilder;
         for (MedicationRequest medicationRequest : medicationRequestList) {
-            medicationList.add(medicationRequest.getMedicationCodeableConcept().getCoding().get(0).getDisplay());
+            stringBuilder = new StringBuilder();
+            stringBuilder.append((medicationRequest.getMedicationCodeableConcept()
+                    .getCoding().get(0).getDisplay()));
+            if (medicationRequest.getDosageInstruction() != null ) {
+
+                if (medicationRequest.getDosageInstructionFirstRep().getDoseAndRateFirstRep().getDoseQuantity().getValue() != null) {
+                    stringBuilder.append("|" + medicationRequest.getDosageInstructionFirstRep().getDoseAndRateFirstRep().getDoseQuantity().getValue())
+                            .append("|" + medicationRequest.getDosageInstructionFirstRep().getTiming().getRepeat().getPeriod())
+                            .append(" ")
+                            .append(medicationRequest.getDosageInstructionFirstRep().getTiming().getRepeat().getPeriodUnit());
+                }
+            }
+//            System.out.println("med value-"+stringBuilder.toString());
+            medicationList.add(stringBuilder.toString());
         }
 
         return medicationList;
@@ -213,9 +368,21 @@ public class FHIRService {
         List<AllergyIntolerance> allergyIntoleranceList = getCompleteBundleAsList(bundle, client, AllergyIntolerance.class);
 
         System.out.println("allergy count - "+allergyIntoleranceList.size());
-
+        StringBuilder stringBuilder;
         for (AllergyIntolerance allergyIntolerance : allergyIntoleranceList) {
-            allergies.add(allergyIntolerance.getCode().getCoding().get(0).getDisplay());
+            stringBuilder = new StringBuilder();
+
+//            System.out.println("allergy name -"+allergyIntolerance.getCode().getCoding().get(0).getDisplay());
+//            System.out.println("allergy id-"+allergyIntolerance.getIdElement().getIdPart());
+            stringBuilder.append(allergyIntolerance.getCode().getCoding().get(0).getDisplay());
+            if (allergyIntolerance.getReaction() != null && allergyIntolerance.getReactionFirstRep().getManifestationFirstRep().getCodingFirstRep().getDisplay() != null) {
+//                System.out.println(allergyIntolerance.getReactionFirstRep().getManifestationFirstRep().getCodingFirstRep().getDisplay());
+
+                stringBuilder.append("|")
+                        .append(allergyIntolerance.getReactionFirstRep().getManifestationFirstRep().getCodingFirstRep().getDisplay());
+            }
+            System.out.println("allergy string-"+stringBuilder.toString());
+            allergies.add(stringBuilder.toString());
         }
 
         return allergies;
@@ -307,6 +474,7 @@ public class FHIRService {
 
         for (RelatedPerson relatedPerson : relatedPersonList) {
             if (relatedPerson.getName() != null) {
+                FamilyMember updateFamilyMember = new FamilyMember();
                 FamilyMember familyMember = new FamilyMember();
                 familyMember.setRelationship(relatedPerson.getRelationship().get(0).getCoding().get(0).getCode());
                 familyMember.setFamilyName(relatedPerson.getName().get(0).getFamily());
@@ -324,30 +492,23 @@ public class FHIRService {
                     if(memberInfo.getGender() != null)
                         familyMember.setGender(memberInfo.getGender().getDisplay());
                     if(memberInfo.getBirthDate() != null) {
-                        familyMember.setBirthDate(new SimpleDateFormat("yyyy-mm-dd").format(memberInfo.getBirthDate()));
+                        familyMember.setBirthDate(new SimpleDateFormat("yyyy-MM-dd").format(memberInfo.getBirthDate()));
                         familyMember.setAge(Period.between(memberInfo.getBirthDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalDate.now()).getYears());
-
                     }
                     familyMember.setAddress(memberInfo.getAddressFirstRep().getLine().get(0)+" "+memberInfo.getAddressFirstRep().getCity()+
                         " "+memberInfo.getAddressFirstRep().getState()+" "+memberInfo.getAddressFirstRep().getPostalCode());
 
                     familyMember.setMemberPatientId(memberInfo.getIdElement().getIdPart());
-                    List<Observation> weightList = this.getPatientWeightById(familyMember.getMemberPatientId());
-                    if(!weightList.isEmpty())
-                        familyMember.setWeight(weightList.get(0).getValueQuantity().getValue().toString()
-                                +" "+weightList.get(0).getValueQuantity().getUnit());
 
-                    familyMember.setHeight(this.getPatientHeightById(familyMember.getMemberPatientId()));
-                    familyMember.setBmi(this.getPatientBMIById(familyMember.getMemberPatientId()));
-                    familyMember.setHdl(this.getPatientHDLById(familyMember.getMemberPatientId()));
-                    familyMember.setLdl(this.getPatientLDLById(familyMember.getMemberPatientId()));
-                    familyMember.setAllergies(this.getAllergiesByPatientId(familyMember.getMemberPatientId()));
-                    familyMember.setConditions(this.getConditionsByPatientId(familyMember.getMemberPatientId()));
-                    familyMember.setEncounters(this.getEncountersByPatientId(familyMember.getMemberPatientId()));
-                    familyMember.setImmunizations(this.getImmunizationByPatientId(familyMember.getMemberPatientId()));
-                    familyMember.setMedications(this.getMedicationsByPatientId(familyMember.getMemberPatientId()));
+                    updateFamilyMember = getFamilyMemberVitalsByPatientId(familyMember);
+
+                    updateFamilyMember.setAllergies(this.getAllergiesByPatientId(familyMember.getMemberPatientId()));
+                    updateFamilyMember.setConditions(this.getConditionsByPatientId(familyMember.getMemberPatientId()));
+                    updateFamilyMember.setEncounters(this.getEncountersByPatientId(familyMember.getMemberPatientId()));
+                    updateFamilyMember.setImmunizations(this.getImmunizationByPatientId(familyMember.getMemberPatientId()));
+                    updateFamilyMember.setMedications(this.getMedicationsByPatientId(familyMember.getMemberPatientId()));
                 }
-                familyMembers.add(familyMember);
+                familyMembers.add(updateFamilyMember);
             }
         }
         return familyMembers;
@@ -408,6 +569,91 @@ public class FHIRService {
 //        return methodOutcome.getId().getIdPart();
     }
 
+    public String addAllergy(String patientId) {
+        AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
+
+        allergyIntolerance.setType(AllergyIntolerance.AllergyIntoleranceType.ALLERGY);
+
+        CodeableConcept codeableConcept = new CodeableConcept();
+        Coding coding = new Coding();
+        coding.setCode("387207008");
+        coding.setDisplay("Ibuprofen");
+        coding.setSystem("http://snomed.info/sct");
+        List<Coding> codings = new ArrayList<>();
+        codings.add(coding);
+        codeableConcept.setCoding(codings);
+        allergyIntolerance.setCode(codeableConcept);
+
+        Reference reference = new Reference();
+        reference.setReference("Patient/"+patientId);
+        allergyIntolerance.setPatient(reference);
+
+        List<AllergyIntolerance.AllergyIntoleranceReactionComponent> allergyIntoleranceReactionComponents = new ArrayList<>();
+        AllergyIntolerance.AllergyIntoleranceReactionComponent allergyIntoleranceReactionComponent = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
+        List<CodeableConcept> list = new ArrayList<>();
+        CodeableConcept codeableConcept1 = new CodeableConcept();
+        Coding coding1 = new Coding();
+        coding1.setCode("422400008");
+        coding1.setDisplay("Vomiting");
+        coding1.setSystem("http://snomed.info/sct");
+        List<Coding> codings1 = new ArrayList<>();
+        codings1.add(coding1);
+        codeableConcept1.setCoding(codings1);
+        list.add(codeableConcept1);
+
+        allergyIntoleranceReactionComponent.setManifestation(list);
+        allergyIntoleranceReactionComponents.add(allergyIntoleranceReactionComponent);
+        allergyIntolerance.setReaction(allergyIntoleranceReactionComponents);
+
+        MethodOutcome methodOutcome =  client.create().resource(allergyIntolerance).execute();
+//        MethodOutcome methodOutcome = client.update().resource(patient).execute();
+        System.out.println("allergy added-"+methodOutcome.getId().getIdPart());
+        return methodOutcome.getId().getIdPart();
+
+    }
+
+    public String addFoodAllergy(String patientId) {
+        AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
+
+        allergyIntolerance.setType(AllergyIntolerance.AllergyIntoleranceType.ALLERGY);
+
+        CodeableConcept codeableConcept = new CodeableConcept();
+        Coding coding = new Coding();
+        coding.setCode("420174000");
+        coding.setDisplay("Allergy to wheat");
+        coding.setSystem("http://snomed.info/sct");
+        List<Coding> codings = new ArrayList<>();
+        codings.add(coding);
+        codeableConcept.setCoding(codings);
+        allergyIntolerance.setCode(codeableConcept);
+
+        Reference reference = new Reference();
+        reference.setReference("Patient/"+patientId);
+        allergyIntolerance.setPatient(reference);
+
+//        List<AllergyIntolerance.AllergyIntoleranceReactionComponent> allergyIntoleranceReactionComponents = new ArrayList<>();
+//        AllergyIntolerance.AllergyIntoleranceReactionComponent allergyIntoleranceReactionComponent = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
+//        List<CodeableConcept> list = new ArrayList<>();
+//        CodeableConcept codeableConcept1 = new CodeableConcept();
+//        Coding coding1 = new Coding();
+//        coding1.setCode("247472004");
+//        coding1.setDisplay("Hives");
+//        coding1.setSystem("http://snomed.info/sct");
+//        List<Coding> codings1 = new ArrayList<>();
+//        codings1.add(coding);
+//        codeableConcept1.setCoding(codings1);
+//        list.add(codeableConcept1);
+//
+//        allergyIntoleranceReactionComponent.setManifestation(list);
+//        allergyIntoleranceReactionComponents.add(allergyIntoleranceReactionComponent);
+//        allergyIntolerance.setReaction(allergyIntoleranceReactionComponents);
+
+        MethodOutcome methodOutcome =  client.create().resource(allergyIntolerance).execute();
+//        MethodOutcome methodOutcome = client.update().resource(patient).execute();
+        System.out.println("allergy added-"+methodOutcome.getId().getIdPart());
+        return methodOutcome.getId().getIdPart();
+
+    }
     /*var systolicbp = getBloodPressureValue(byCodes('55284-4'), '8480-6');
       var diastolicbp = getBloodPressureValue(byCodes('55284-4'), '8462-4');
       var hdl = byCodes('2085-9');

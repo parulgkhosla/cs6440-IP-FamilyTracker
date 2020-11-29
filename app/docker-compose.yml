@@ -1,15 +1,16 @@
 version: "2"
 services:
-#  frontend:
-#    build: .
-#    restart: always
-#    container_name: tracker-frontend
-#    expose:
-#      - 80
-#    ports:
-#      - "80:80"
-#    depends_on:
-#      - backend
+  frontend:
+    build: .
+    restart: always
+    container_name: tracker-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+      - frontend
 
   backend:
     restart: always
@@ -19,3 +20,10 @@ services:
       - "8086:8086"
     expose:
       - 8086
+    networks:
+      - backend
+      - frontend
+
+networks:
+  backend:
+  frontend:

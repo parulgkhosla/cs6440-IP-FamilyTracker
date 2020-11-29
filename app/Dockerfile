@@ -1,27 +1,23 @@
 # Name the node stage "builder"
 FROM node:14.6 AS builder
+
 # Set working directory
 WORKDIR /app
-# Copy all files from current directory to working dir in image
+# copy files from project to the image
 COPY tracker-frontend frontend
-COPY config config
-# install node modules and build assets
-WORKDIR /app/frontend
-# because our app is not at the root of the server
-ENV APP_URL="/family-health-tracker"
 
-# build the static assets
+WORKDIR /app/frontend
+# to do or not?
+#ENV PUBLIC_URL="/family-health-tracker"
+
+# build
 RUN yarn install && yarn build
 
 # nginx state for serving content
 FROM nginx:alpine
 # Set working directory to nginx asset directory
 WORKDIR /app
-# Copy static assets from builder stage
-COPY --from=builder /app/frontend/build html
-COPY --from=builder /app/config config
-RUN mkdir -p config/logs
-
-# Container run nginx with global directives and daemon off
+COPY --from=builder /app/frontend/build /usr/share/nginx/html/
+RUN echo $(ls -1 /usr/share/nginx/html/)
 EXPOSE 80
-CMD ["nginx", "-c", "config/nginx.conf", "-p", "/app", "-g", "daemon off;"]
+ENTRYPOINT ["nginx","-g","daemon off;"]
