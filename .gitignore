@@ -1,19 +1,15 @@
-
-/app/tracker-backend/target/
-/.idea/
-tracker-backend/.idea/
-tracker-frontend/.idea/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/tracker-frontend/node_modules/
-.pnp
+/node_modules
+/.pnp
 .pnp.js
 
 # testing
-/tracker-frontend/coverage
+/coverage
 
 # production
-/tracker-frontend/build
+/build
 
 # misc
 .DS_Store
