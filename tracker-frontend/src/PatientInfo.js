@@ -345,13 +345,20 @@ const PatientInfo = ({ selectedPatientId }) => {
                           </div>
                           {patientData.immunizations && patientData.immunizations.map(imm => {
                               const i = imm.split("|")
+                              // i[1] = 'not-done'
                             return (
                                 <div className="flex">
                                   <tr style={{width: "20em", flex: 1}}>
                                     {i[0] !== undefined ?
-                                        <TableRow title={i[0]}/> : <TableRow title="N/A"/>}
+                                        <td className={classNames("table-label")} style={{
+                                            fontSize: '0.9em', position: 'relative', color:
+                                                i[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                        }}>{i[0]}</td> : <TableRow title="N/A"/>}
                                     {i[1] !== undefined ?
-                                        <TableRow title={i[1]}/> : <TableRow title="N/A"/>}
+                                        <td className={classNames("table-label")} style={{
+                                            fontSize: '0.9em', position: 'relative', color:
+                                                i[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                        }}>{i[1]}</td>  : <TableRow title="N/A"/>}
                                   </tr>
                                 </div>
                             );

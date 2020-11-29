@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8086/api";
+const BASE_URL = "https://pkhosla3-cs6440-trackerbackend.herokuapp.com/api";
 
 // const BASE_URL = "/family-health-tracker-backend/api";
 

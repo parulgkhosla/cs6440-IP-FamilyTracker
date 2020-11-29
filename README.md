@@ -2,6 +2,15 @@
 
 Family Health Tracker Web Interface to view your's and your family members health information at a single place.
 
+## App Public URL (deployed to heroku)
+Deployed App public url - 
+[https://pkhosla3-cs6440-trackerapp.herokuapp.com/](https://pkhosla3-cs6440-trackerapp.herokuapp.com/)
+
+Deployed Backend service url -
+[https://pkhosla3-cs6440-trackerbackend.herokuapp.com](https://pkhosla3-cs6440-trackerbackend.herokuapp.com) 
+ 
+ API endpoints mentioned in the instruction below can be used to test backend API.
+
 ## Local build and deployment using Docker (RECOMMENDED)
 
 ### Pre-requisites
