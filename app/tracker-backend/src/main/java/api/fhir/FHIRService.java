@@ -415,10 +415,9 @@ public class FHIRService {
 
     public List<String> getImmunizationByPatientId(String patientId) {
         List<String> immunizations = new ArrayList<>();
-        //lastest encounter
+
         Bundle bundle = client.search().forResource(Immunization.class)
                 .where(Immunization.PATIENT.hasId(patientId))
-                .and(Immunization.STATUS.exactly().code("completed"))
                 .sort(new SortSpec("date", SortOrderEnum.DESC))
                 .count(2)
                 .returnBundle(Bundle.class)
@@ -426,10 +425,14 @@ public class FHIRService {
         List<Immunization> immunizationList = getCompleteBundleAsList(bundle, client, Immunization.class);
 
         System.out.println("immunization count - "+immunizationList.size());
-
+        StringBuilder stringBuilder;
         for (Immunization immunization : immunizationList) {
-            if (!immunizations.contains(immunization.getVaccineCode().getText())) {
-                immunizations.add(immunization.getVaccineCode().getText());
+            stringBuilder = new StringBuilder();
+            stringBuilder.append(immunization.getVaccineCode().getText())
+                    .append("|")
+                    .append(immunization.getStatus());
+            if (!immunizations.contains(stringBuilder.toString())) {
+                immunizations.add(stringBuilder.toString());
             }
         }
 

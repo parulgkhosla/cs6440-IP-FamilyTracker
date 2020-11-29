@@ -331,18 +331,27 @@ const PatientInfo = ({ selectedPatientId }) => {
                     </div>
                   </div>
                   <div className="flex" style={{flexWrap: "wrap"}}>
-                    <TrackerLabel title="Immunizations (completed)"/>
+                    <TrackerLabel title="Immunizations"/>
                     <div className="flex flex-col" style={{marginTop: "1em"}}>
                       <div className="flex flex-col"
                            style={{display: patientData.immunizations !== undefined ? 'block' : 'none'}}>
                         <table>
                           <tbody>
+                          <div className="flex">
+                              <tr style={{width: "20em", flex: 1, fontWeight: 'bold'}}>
+                                  <TableRow title='Immunization'/>
+                                  <TableRow title='Status'/>
+                              </tr>
+                          </div>
                           {patientData.immunizations && patientData.immunizations.map(imm => {
+                              const i = imm.split("|")
                             return (
                                 <div className="flex">
                                   <tr style={{width: "20em", flex: 1}}>
-                                    {imm !== undefined ?
-                                        <TableRow title={imm}/> : <TableRow title="N/A"/>}
+                                    {i[0] !== undefined ?
+                                        <TableRow title={i[0]}/> : <TableRow title="N/A"/>}
+                                    {i[1] !== undefined ?
+                                        <TableRow title={i[1]}/> : <TableRow title="N/A"/>}
                                   </tr>
                                 </div>
                             );
@@ -639,25 +648,34 @@ const PatientInfo = ({ selectedPatientId }) => {
                               </div>
                               <div className="flex" style={{flexWrap: "wrap"}}>
                                 <TrackerLabel title="Immunizations (completed)"/>
-                                <div className="flex flex-col" style={{marginTop: "1em"}}>
-                                  <div className="flex flex-col"
-                                       style={{display: member.immunizations !== undefined ? 'block' : 'none'}}>
-                                    <table>
-                                      <tbody>
-                                      {member.immunizations && member.immunizations.map(immu => {
-                                        return (
-                                            <div className="flex">
-                                              <tr style={{width: "20em", flex: 1}}>
-                                                {immu !== undefined ?
-                                                    <TableRow title={immu}/> : <TableRow title="N/A"/>}
-                                              </tr>
-                                            </div>
-                                        );
-                                      })}
-                                      </tbody>
-                                    </table>
+                                  <div className="flex flex-col" style={{marginTop: "1em"}}>
+                                      <div className="flex flex-col"
+                                           style={{display: member.immunizations !== undefined ? 'block' : 'none'}}>
+                                          <table>
+                                              <tbody>
+                                              <div className="flex">
+                                                  <tr style={{width: "20em", flex: 1, fontWeight: 'bold'}}>
+                                                      <TableRow title='Immunization'/>
+                                                      <TableRow title='Status'/>
+                                                  </tr>
+                                              </div>
+                                              {member.immunizations && member.immunizations.map(immu => {
+                                                  const ii = immu.split("|")
+                                                  return (
+                                                      <div className="flex">
+                                                          <tr style={{width: "20em", flex: 1}}>
+                                                              {ii[0] !== undefined ?
+                                                                  <TableRow title={ii[0]}/> : <TableRow title="N/A"/>}
+                                                              {ii[1] !== undefined ?
+                                                                  <TableRow title={ii[1]}/> : <TableRow title="N/A"/>}
+                                                          </tr>
+                                                      </div>
+                                                  );
+                                              })}
+                                              </tbody>
+                                          </table>
+                                      </div>
                                   </div>
-                                </div>
                               </div>
                             </div>
 
