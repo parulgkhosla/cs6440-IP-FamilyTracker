@@ -18,8 +18,6 @@ public class PatientInfo {
     private String ldl;
     private String hdl;
     private String bmi;
-    private String systolic;
-    private String diatollic;
 
     //List of allergies, medications, conditions, emcounters and immunizations.
     List<String> medications;
@@ -155,22 +153,6 @@ public class PatientInfo {
 
     public void setBmi(String bmi) {
         this.bmi = bmi;
-    }
-
-    public String getSystolic() {
-        return systolic;
-    }
-
-    public void setSystolic(String systolic) {
-        this.systolic = systolic;
-    }
-
-    public String getDiatollic() {
-        return diatollic;
-    }
-
-    public void setDiatollic(String diatollic) {
-        this.diatollic = diatollic;
     }
 
     public List<String> getMedications() {

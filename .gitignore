@@ -1,20 +1,19 @@
 
 /app/tracker-backend/target/
-/app/target/
 /.idea/
-app/tracker-backend/.idea/
-app/tracker-frontend/.idea/
+tracker-backend/.idea/
+tracker-frontend/.idea/
 
 # dependencies
-/app/tracker-frontend/node_modules/
+/tracker-frontend/node_modules/
 .pnp
 .pnp.js
 
 # testing
-/app/tracker-frontend/coverage
+/tracker-frontend/coverage
 
 # production
-/app/tracker-frontend/build
+/tracker-frontend/build
 
 # misc
 .DS_Store
@@ -26,5 +25,3 @@ app/tracker-frontend/.idea/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-/app/config/logs

@@ -12,8 +12,7 @@ Family Health Tracker Web Interface to view your's and your family members healt
 Run the following Steps/Commands:
     
     * Clone the repo in your local.
-    * cd CS6440-IP-FamilyHealthTracker 
-    * cd app
+    * cd cs6440-IP-FamilyTracker 
     * docker-compose build
     * docker-compose up
   Note: Docker build runs slow
@@ -23,6 +22,9 @@ Run the following Steps/Commands:
   
   If you want to hit the backend service endpoint:
   [http://localhost:8086/home](http://localhost:8086/home)
+  
+  Get Patient Personal Complete Info (includes family members) by Patient Id
+          `http://localhost:8086/api/patient/<id>`
 
 ## (Non Docker) Local build and deployment
 
@@ -57,7 +59,7 @@ Run the following Steps/Commands:
    * Open terminal and go to tracker-frontend folder in project codebase
    
    
-           * cd CS6440-IP-FamilyHealthTracker/app/tracker-frontend 
+           * cd cs6440-IP-FamilyTracker/tracker-frontend 
            * yarn install
            * yarn build
            * yarn start
