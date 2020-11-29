@@ -9,8 +9,9 @@ Deployed App public url -
 Deployed Backend service url -
 [https://pkhosla3-cs6440-trackerbackend.herokuapp.com](https://pkhosla3-cs6440-trackerbackend.herokuapp.com) 
  
- API endpoints mentioned in the instruction below can be used to test backend API.
-
+ Get Patient Personal Complete Info (includes family members) by Patient Id
+ 
+           `https://pkhosla3-cs6440-trackerbackend.herokuapp.com/api/patient/<id>`
 ## Local build and deployment using Docker (RECOMMENDED)
 
 ### Pre-requisites
