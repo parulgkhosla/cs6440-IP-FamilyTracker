@@ -57,10 +57,10 @@ Run the following Steps/Commands:
    * Open terminal and go to tracker-frontend folder in project codebase
    
    
-       * cd CS6440-IP-FamilyHealthTracker/app/tracker-frontend 
-       * yarn install
-       * yarn build
-       * yarn start
+           * cd CS6440-IP-FamilyHealthTracker/app/tracker-frontend 
+           * yarn install
+           * yarn build
+           * yarn start
     
    * Once all the above are successful, frontend service will start at the port 3000.
     Start a web browser and navigate to: 
