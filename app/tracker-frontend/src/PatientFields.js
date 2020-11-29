@@ -5,9 +5,9 @@ import _ from "lodash";
 
 import TrackerLabel from "./TrackerLabel";
 
-import "./TextInput.css";
+import "./PatientFields.css";
 
-const TextInput = ({
+const PatientFields = ({
   title,
   value,
   isRequired,
@@ -40,7 +40,7 @@ const TextInput = ({
   );
 };
 
-TextInput.propTypes = {
+PatientFields.propTypes = {
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -51,7 +51,7 @@ TextInput.propTypes = {
   placeholder: PropTypes.string,
 };
 
-TextInput.defaultProps = {
+PatientFields.defaultProps = {
   isRequired: false,
   grow: false,
   placeholder: null,
@@ -60,4 +60,4 @@ TextInput.defaultProps = {
   small: false,
 };
 
-export default TextInput;
+export default PatientFields;

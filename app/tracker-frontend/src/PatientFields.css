@@ -36,11 +36,23 @@
   border: 1px solid lightslategrey;
 }
 
-.input-title {
+.header-label {
+  /*padding: 10px;*/
+  padding-left:50px;
+  width: inherit;
+  font-size: 0.9em;
+  color: white;
+  position: relative;
+  border: 1px solid lightslategrey;
+  font-weight: bold;
+
+}
+.field-title {
   padding: 10px;
   font-size: 0.9em;
   color: white;
   position: relative;
+  font-weight: bold;
 }
 
 .section-title {

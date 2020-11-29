@@ -1,5 +1,7 @@
 const BASE_URL = "http://127.0.0.1:8086/api";
 
+// const BASE_URL = "/family-health-tracker-backend/api";
+
 export const loadPatientInfoById = ({
   patientId,
   setData,
@@ -15,7 +17,7 @@ export const loadPatientInfoById = ({
     .then((res) => res.json())
     .then(
       (result) => {
-          alert(result)
+          // alert(result)
         setData(result);
         if (setLoading) {
           setLoading(false);
