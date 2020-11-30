@@ -22,12 +22,13 @@ public class PatientInfoController {
     public ResponseEntity<PatientInfo> getPatientInfoById(@PathVariable(value = "id") String id)
             throws Exception {
         PatientInfo patientInfo = fhirService.getPatientInfoById(id);
+//        fhirService.addObservation(id);
         PatientInfo updatePatientInfo = fhirService.getPatientVitalsByPatientId(patientInfo);
-//        List<Observation> weightList = fhirService.getPatientWeightById(patientInfo.getPatientId());
 
         updatePatientInfo.setMedications(fhirService.getMedicationsByPatientId(id));
 //        fhirService.addAllergy(id);
 //        fhirService.addFoodAllergy(id);
+//        fhirService.addCondition(id);
         updatePatientInfo.setAllergies(fhirService.getAllergiesByPatientId(id));
         updatePatientInfo.setConditions(fhirService.getConditionsByPatientId(id));
         updatePatientInfo.setEncounters(fhirService.getEncountersByPatientId(id));
