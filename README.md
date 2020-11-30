@@ -12,6 +12,11 @@ Deployed Backend service url -
  Get Patient Personal Complete Info (includes family members) by Patient Id
  
            `https://pkhosla3-cs6440-trackerbackend.herokuapp.com/api/patient/<id>`
+ Test Patients:
+
+    *Patient with one family member - 9a82c90c-ba2d-4b36-a523-ee13e38b8e39
+    *Patient with no family member - 494743a2-fea5-4827-8f02-c2b91e4a4c9e
+
 ## Local build and deployment using Docker (RECOMMENDED)
 
 ### Pre-requisites
@@ -53,7 +58,7 @@ Run the following Steps/Commands:
 
 3. Select "Spring Boot App" in the left navigation pane by using + button on top. Once selected ensure Application.java class is entered as the main class.
         
-    ![Run Config](https://github.gatech.edu/pkhosla3/CS6440-IP-FamilyHealthTracker/blob/master/docs/run-config.png)
+    ![Run Config](https://github.com/parulgkhosla/cs6440-IP-FamilyTracker/blob/master/docs/run-config.png)
 
 4. Run the backend service using the 'Run Application' option under Run menu.
 

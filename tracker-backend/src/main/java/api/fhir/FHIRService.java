@@ -340,7 +340,7 @@ public class FHIRService {
         List<String> conditions = new ArrayList<>();
 
         Bundle bundle = client.search().forResource(Condition.class)
-                .where(Condition.SEVERITY.exactly().code("active"))
+                .where(Condition.CLINICAL_STATUS.exactly().code("active"))
                 .and(Condition.PATIENT.hasId(patientId))
 //                .sort(new SortSpec("date", SortOrderEnum.DESC))
                 .returnBundle(Bundle.class)
@@ -449,7 +449,7 @@ public class FHIRService {
                 .returnBundle(Bundle.class)
                 .execute();
         List<Patient> patients = getCompleteBundleAsList(bundle, client, Patient.class);
-        System.out.println("related person count-"+patients.size());
+//        System.out.println("related person count-"+patients.size());
 //        for (Patient patient : patients) {
 //            System.out.println(patient.getBirthDate());
 //            System.out.println(date);
@@ -458,7 +458,7 @@ public class FHIRService {
 //            }
 //            patientId = patient.getIdElement().getIdPart();
 //        }
-        System.out.println("member patient id -"+patientId);
+//        System.out.println("member patient id -"+patientId);
         if (patients.isEmpty()) return null;
         return patients.get(0);
     }
@@ -484,7 +484,6 @@ public class FHIRService {
                 familyMember.setFirstName(relatedPerson.getName().get(0).getGiven().get(0).getValue());
                 familyMember.setBirthDate(relatedPerson.getBirthDate().toString());
                 System.out.println("family member id-" + relatedPerson.getIdElement().getIdPart());
-                System.out.println("family member dob-" + relatedPerson.getBirthDate());
                 System.out.println("family member last name-" + relatedPerson.getName().get(0).getFamily());
                 //fetch member health info
                 Patient memberInfo = this.getPatientInfoByNameDob(relatedPerson.getName().get(0).getGiven().get(0).getValue(),
@@ -622,8 +621,8 @@ public class FHIRService {
 
         CodeableConcept codeableConcept = new CodeableConcept();
         Coding coding = new Coding();
-        coding.setCode("420174000");
-        coding.setDisplay("Allergy to wheat");
+        coding.setCode("425525006");
+        coding.setDisplay("Allergy to dairy products");
         coding.setSystem("http://snomed.info/sct");
         List<Coding> codings = new ArrayList<>();
         codings.add(coding);
@@ -634,29 +633,75 @@ public class FHIRService {
         reference.setReference("Patient/"+patientId);
         allergyIntolerance.setPatient(reference);
 
-//        List<AllergyIntolerance.AllergyIntoleranceReactionComponent> allergyIntoleranceReactionComponents = new ArrayList<>();
-//        AllergyIntolerance.AllergyIntoleranceReactionComponent allergyIntoleranceReactionComponent = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
-//        List<CodeableConcept> list = new ArrayList<>();
-//        CodeableConcept codeableConcept1 = new CodeableConcept();
-//        Coding coding1 = new Coding();
-//        coding1.setCode("247472004");
-//        coding1.setDisplay("Hives");
-//        coding1.setSystem("http://snomed.info/sct");
-//        List<Coding> codings1 = new ArrayList<>();
-//        codings1.add(coding);
-//        codeableConcept1.setCoding(codings1);
-//        list.add(codeableConcept1);
-//
-//        allergyIntoleranceReactionComponent.setManifestation(list);
-//        allergyIntoleranceReactionComponents.add(allergyIntoleranceReactionComponent);
-//        allergyIntolerance.setReaction(allergyIntoleranceReactionComponents);
-
         MethodOutcome methodOutcome =  client.create().resource(allergyIntolerance).execute();
 //        MethodOutcome methodOutcome = client.update().resource(patient).execute();
         System.out.println("allergy added-"+methodOutcome.getId().getIdPart());
         return methodOutcome.getId().getIdPart();
 
     }
+
+    public String addCondition(String patientId) {
+        Condition condition = new Condition();
+
+        CodeableConcept clinicalStatus = new CodeableConcept();
+        Coding status = new Coding();
+        status.setCode("active");
+        status.setSystem("http://terminology.hl7.org/CodeSystem/condition-clinical");
+        List<Coding> statuses = new ArrayList<>();
+        statuses.add(status);
+        clinicalStatus.setCoding(statuses);
+        condition.setClinicalStatus(clinicalStatus);
+
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setText("Prediabetes");
+        Coding coding = new Coding();
+        coding.setCode("15777000");
+        coding.setDisplay("Prediabetes");
+        coding.setSystem("http://snomed.info/sct");
+        List<Coding> codings = new ArrayList<>();
+        codings.add(coding);
+        codeableConcept.setCoding(codings);
+        condition.setCode(codeableConcept);
+
+        Reference reference = new Reference();
+        reference.setReference("Patient/"+patientId);
+        condition.setSubject(reference);
+
+        MethodOutcome methodOutcome =  client.create().resource(condition).execute();
+        System.out.println("condition added-"+methodOutcome.getId().getIdPart());
+        return methodOutcome.getId().getIdPart();
+
+    }
+
+    public String addObservation(String patientId) {
+        Observation observation = new Observation();
+
+        CodeableConcept obs = new CodeableConcept();
+        obs.setText("BMI");
+        Coding status = new Coding();
+        status.setCode("39156-5");
+        status.setSystem("http://loinc.org");
+        status.setDisplay("BMI");
+        List<Coding> statuses = new ArrayList<>();
+        statuses.add(status);
+        obs.setCoding(statuses);
+        observation.setCode(obs);
+
+
+        observation.getValueQuantity().setValue(35);
+        observation.getValueQuantity().setUnit("kg/m2");
+
+        Reference reference = new Reference();
+        reference.setReference("Patient/"+patientId);
+        observation.setSubject(reference);
+
+        MethodOutcome methodOutcome =  client.create().resource(observation).execute();
+        System.out.println("obs added-"+methodOutcome.getId().getIdPart());
+        return methodOutcome.getId().getIdPart();
+    }
+
+
+
     /*var systolicbp = getBloodPressureValue(byCodes('55284-4'), '8480-6');
       var diastolicbp = getBloodPressureValue(byCodes('55284-4'), '8462-4');
       var hdl = byCodes('2085-9');
