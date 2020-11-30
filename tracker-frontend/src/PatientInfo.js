@@ -185,7 +185,8 @@ const PatientInfo = ({ selectedPatientId }) => {
                         <tr style={{width: "20em", flex: 1}}>
                           <HeaderRow title="HDL"/>
                           {patientData.hdl !== undefined ?
-                              <TableRow title={patientData.hdl}/> : <TableRow title="N/A"/>}
+                              patientData.hdl.split(" ")[0] < 50 ? <td className={classNames("table-label")} style={{
+                                  fontSize: '0.9em', position: 'relative', color: 'yellow'}}>{patientData.hdl}</td>: <TableRow title={patientData.hdl}/> : <TableRow title="N/A"/>}
                         </tr>
                       </div>
                       </tbody>
@@ -198,8 +199,9 @@ const PatientInfo = ({ selectedPatientId }) => {
                       <div className="flex">
                         <tr style={{width: "20em", flex: 1}}>
                           <HeaderRow title="LDL"/>
-                          {patientData.ldl !== undefined ?
-                              <TableRow title={patientData.ldl}/> : <TableRow title="N/A"/>}
+                            {patientData.ldl !== undefined ?
+                                patientData.ldl.split(" ")[0] >= 100 ? <td className={classNames("table-label")} style={{
+                                    fontSize: '0.9em', position: 'relative', color: 'yellow'}}>{patientData.ldl}</td>: <TableRow title={patientData.hdl}/> : <TableRow title="N/A"/>}
                         </tr>
                       </div>
                       </tbody>
@@ -345,21 +347,20 @@ const PatientInfo = ({ selectedPatientId }) => {
                           </div>
                           {patientData.immunizations && patientData.immunizations.map(imm => {
                               const i = imm.split("|")
-                              // i[1] = 'not-done'
                             return (
                                 <div className="flex">
-                                  <tr style={{width: "20em", flex: 1}}>
-                                    {i[0] !== undefined ?
-                                        <td className={classNames("table-label")} style={{
-                                            fontSize: '0.9em', position: 'relative', color:
-                                                i[1] !== 'COMPLETED' ? 'yellow' : 'white'
-                                        }}>{i[0]}</td> : <TableRow title="N/A"/>}
-                                    {i[1] !== undefined ?
-                                        <td className={classNames("table-label")} style={{
-                                            fontSize: '0.9em', position: 'relative', color:
-                                                i[1] !== 'COMPLETED' ? 'yellow' : 'white'
-                                        }}>{i[1]}</td>  : <TableRow title="N/A"/>}
-                                  </tr>
+                                    <tr style={{width: "20em", flex: 1}}>
+                                        {i[0] !== undefined ?
+                                            <td className={classNames("table-label")} style={{
+                                                fontSize: '0.9em', position: 'relative', color:
+                                                    i[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                            }}>{i[0]}</td> : <TableRow title="N/A"/>}
+                                        {i[1] !== undefined ?
+                                            <td className={classNames("table-label")} style={{
+                                                fontSize: '0.9em', position: 'relative', color:
+                                                    i[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                            }}>{i[1]}</td>  : <TableRow title="N/A"/>}
+                                    </tr>
                                 </div>
                             );
                           })}
@@ -507,8 +508,9 @@ const PatientInfo = ({ selectedPatientId }) => {
                                     <div className="flex">
                                       <tr style={{width: "20em", flex: 1}}>
                                         <HeaderRow title="HDL"/>
-                                        {member.hdl !== undefined ?
-                                            <TableRow title={member.hdl}/> : <TableRow title="N/A"/>}
+                                          {member.hdl !== null ?
+                                              member.hdl.split(" ")[0] < 50 ? <td className={classNames("table-label")} style={{
+                                                  fontSize: '0.9em', position: 'relative', color: 'yellow'}}>{member.hdl}</td>: <TableRow title={member.hdl}/> : <TableRow title="N/A"/>}
                                       </tr>
                                     </div>
                                     </tbody>
@@ -521,8 +523,9 @@ const PatientInfo = ({ selectedPatientId }) => {
                                     <div className="flex">
                                       <tr style={{width: "20em", flex: 1}}>
                                         <HeaderRow title="LDL"/>
-                                        {member.ldl !== undefined ?
-                                            <TableRow title={member.ldl}/> : <TableRow title="N/A"/>}
+                                          {member.ldl !== null ?
+                                              member.ldl.split(" ")[0] < 50 ? <td className={classNames("table-label")} style={{
+                                                  fontSize: '0.9em', position: 'relative', color: 'yellow'}}>{member.ldl}</td>: <TableRow title={member.ldl}/> : <TableRow title="N/A"/>}
                                       </tr>
                                     </div>
                                     </tbody>
@@ -654,7 +657,7 @@ const PatientInfo = ({ selectedPatientId }) => {
                                 </div>
                               </div>
                               <div className="flex" style={{flexWrap: "wrap"}}>
-                                <TrackerLabel title="Immunizations (completed)"/>
+                                <TrackerLabel title="Immunizations"/>
                                   <div className="flex flex-col" style={{marginTop: "1em"}}>
                                       <div className="flex flex-col"
                                            style={{display: member.immunizations !== undefined ? 'block' : 'none'}}>
@@ -672,9 +675,15 @@ const PatientInfo = ({ selectedPatientId }) => {
                                                       <div className="flex">
                                                           <tr style={{width: "20em", flex: 1}}>
                                                               {ii[0] !== undefined ?
-                                                                  <TableRow title={ii[0]}/> : <TableRow title="N/A"/>}
+                                                                  <td className={classNames("table-label")} style={{
+                                                                      fontSize: '0.9em', position: 'relative', color:
+                                                                          ii[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                                                  }}>{ii[0]}</td> : <TableRow title="N/A"/>}
                                                               {ii[1] !== undefined ?
-                                                                  <TableRow title={ii[1]}/> : <TableRow title="N/A"/>}
+                                                                  <td className={classNames("table-label")} style={{
+                                                                      fontSize: '0.9em', position: 'relative', color:
+                                                                          ii[1] !== 'COMPLETED' ? 'yellow' : 'white'
+                                                                  }}>{ii[1]}</td>  : <TableRow title="N/A"/>}
                                                           </tr>
                                                       </div>
                                                   );
